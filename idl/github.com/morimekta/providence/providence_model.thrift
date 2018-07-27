@@ -114,7 +114,7 @@ struct FunctionType {
     2: optional bool one_way = false;
     3: optional string return_type
     4: required string name;
-    5: optional list<FieldType> params = [];
+    5:          list<FieldType> params = [];
     6: optional list<FieldType> exceptions = [];
     7: optional map<string,string> annotations (container = "SORTED");
 }
@@ -128,7 +128,7 @@ struct ServiceType {
     1: optional string documentation;
     2: required string name;
     3: optional string extend;
-    4: optional list<FunctionType> methods = [];
+    4:          list<FunctionType> methods = [];
     5: optional map<string,string> annotations = {} (container = "SORTED");
 }
 
@@ -152,11 +152,11 @@ struct ConstType {
  * ( <enum> | <typedef> | <struct> | <service> | <const> )
  */
 union Declaration {
-    1: EnumType decl_enum;
+    1: EnumType    decl_enum;
     2: TypedefType decl_typedef;
-    3: MessageType decl_struct;
+    3: MessageType decl_message;
     4: ServiceType decl_service;
-    5: ConstType decl_const;
+    5: ConstType   decl_const;
 }
 
 /**
