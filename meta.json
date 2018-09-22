@@ -2,14 +2,6 @@
     "time": "2018-09-22T20:05:26.698754Z",
     "version": 1537646726698,
     "remotes": {
-        "github.com/morimekta/providence": {
-            "time": 1532695674618,
-            "version": 1532695674618,
-            "shasums": {
-                "providence.thrift": "b9e409561f1e318b0a07b14cd9e68bdc20b48852",
-                "providence_model.thrift": "d11d879c2aa51b30f588cea1e99a05b2d433b356"
-            }
-        },
         "gitlab.com/morimekta/providence-core": {
             "time": 1537646726698,
             "version": 1537646726698,
