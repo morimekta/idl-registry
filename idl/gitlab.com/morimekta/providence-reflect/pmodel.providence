@@ -20,9 +20,31 @@ struct FilePos {
 } (java.public.constructor = "")
 
 /**
+ * Base declaration type. All declarations have these fields.
+ */
+interface Decl {
+    /**
+     * Documentation for the specific declaration.
+     */
+    optional string documentation;
+    /**
+     * Name of the type, constant or service.
+     */
+    required string name;
+    /**
+     * Start position in file of the declaration.
+     */
+    optional FilePos start_pos;
+    /**
+     * End position in file of the declaration.
+     */
+    optional FilePos end_pos;
+}
+
+/**
  * <name> (= <value>)
  */
-struct EnumValue {
+struct EnumValue implements Decl {
     1: optional string documentation;
     2: required string name;
     3: optional i32    id;
@@ -38,7 +60,7 @@ struct EnumValue {
  *   (<value> ([;,])?)*
  * }
  */
-struct EnumType {
+struct EnumType implements Decl {
     1: optional string documentation;
     2: required string name;
     3:          list<EnumValue> values;
@@ -52,7 +74,7 @@ struct EnumType {
 /**
  * typedef <type> <name>
  */
-struct TypedefType {
+struct TypedefType implements Decl {
     1: optional string documentation;
     2: required string type;
     3: required string name;
@@ -66,22 +88,35 @@ struct TypedefType {
  * Struct variant for StructType. The lower-case of the enum value is the
  * thrift keyword.
  *
- * struct: No 'required' fields must be present (set to non-null value).
- * UNION: No required fields. Only one field set to be valid.
- * EXCEPTION: No 'cause' field, 'message' field *must* be a string (java).
+ * STRUCT:    Normal Structure.
+ * UNION:     Only one field set to be valid.
+ * EXCEPTION: Handled as exception (Java, Python etc.).
+ *
+ * Providence Only:
+ *
+ * INTERFACE: Not a real type. Only interface. Struct can 'implement' this
+ *            And will then require to have matching fields. Field ids not
+ *            allowed.
  */
 enum MessageVariant {
     STRUCT = 1,
     UNION = 2,
     EXCEPTION = 3,
+    INTERFACE = 4,
 }
 
 /**
  * The requirement of the field.
  */
 enum FieldRequirement {
-    DEFAULT = 0,
+    /**
+     * Will be serialized, will be made present from builder,
+     * but not required for validity.
+     */
+    DEFAULT  = 0,
+    /** Presence is optional. */
     OPTIONAL = 1,
+    /** Must be set for message to be 'valid'. */
     REQUIRED = 2,
 }
 
@@ -97,14 +132,14 @@ enum FieldRequirement {
  *
  * Consts are always given the key '0'.
  */
-struct FieldType {
+struct FieldType implements Decl {
     1: optional string documentation;
     2: required i32    id;
-    3: optional FieldRequirement requirement = DEFAULT;
+    3: optional FieldRequirement requirement = FieldRequirement.DEFAULT;
     4: required string type;
     5: required string name;
     6: optional string default_value;
-    7: optional map<string,string> annotations (container = "SORTED");
+    7: optional map<string,string> annotations = {} (container = "SORTED");
 
     /**
      * Note the start of the default value in the parsed thrift file, this can be used
@@ -122,12 +157,14 @@ struct FieldType {
  *   (<field> ([,;])?)*
  * }
  */
-struct MessageType {
+struct MessageType implements Decl {
     1: optional string documentation;
     2: optional MessageVariant variant = MessageVariant.STRUCT;
     3: required string name;
     4:          list<FieldType> fields;
-    5: optional map<string,string> annotations (container = "SORTED");
+    5: optional map<string,string> annotations = {} (container = "SORTED");
+    /** Interface this message is implementing. */
+    6: optional string implementing;
     /** The start of the definition (position of 'struct' / message type)*/
     10: optional FilePos start_pos;
     /** The end of the definition (position of '}') */
@@ -137,14 +174,14 @@ struct MessageType {
 /**
  * (oneway)? <return_type> <name>'('<param>*')' (throws '(' <exception>+ ')')?
  */
-struct FunctionType {
+struct FunctionType implements Decl {
     1: optional string documentation;
     2: optional bool one_way = false;
     3: optional string return_type
     4: required string name;
     5:          list<FieldType> params = [];
     6: optional list<FieldType> exceptions = [];
-    7: optional map<string,string> annotations (container = "SORTED");
+    7: optional map<string,string> annotations = {} (container = "SORTED");
     /** The start of the definition (position of return type)*/
     10: optional FilePos start_pos;
     /** The end of the definition */
@@ -156,7 +193,7 @@ struct FunctionType {
  *   (<method> [;,]?)*
  * }
  */
-struct ServiceType {
+struct ServiceType implements Decl {
     1: optional string documentation;
     2: required string name;
     3: optional string extend;
@@ -171,7 +208,7 @@ struct ServiceType {
 /**
  * const <type> <name> = <value>
  */
-struct ConstType {
+struct ConstType implements Decl {
     1: optional string documentation;
     4: required string type;
     5: required string name;
@@ -192,7 +229,7 @@ struct ConstType {
 /**
  * ( <enum> | <typedef> | <struct> | <service> | <const> )
  */
-union Declaration {
+union Declaration of Decl {
     1: EnumType    decl_enum;
     2: TypedefType decl_typedef;
     3: MessageType decl_message;
@@ -265,7 +302,17 @@ const set<string> kThriftKeywords = [
   // Field modifiers
   "required", "optional",
   // Extra keywords related to services.
-  "extends", "throws", "oneway", "void"
+  "extends", "throws", "oneway", "void",
+];
+
+/**
+ * Set of keywords only used in .providence files.
+ */
+const set<string> kProvidenceKeywords = [
+  // Defined Types keywords.
+  "interface",
+  // Extra keywords related to messages.
+  "implements", "of",
 ];
 
 /**
