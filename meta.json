@@ -1,6 +1,6 @@
 {
-    "time": "2019-02-02 23:14:48",
-    "version": 1549145688201,
+    "time": "2019-05-11 15:19:53",
+    "version": 1557580793209,
     "remotes": {
         "gitlab.com/morimekta/providence-core": {
             "time": 1537646726698,
@@ -8,6 +8,13 @@
             "shasums": {
                 "pservice.thrift": "6adbe9afa3d83e1b96cfbe95f84b3bcd44599b71",
                 "putil.thrift": "7933440fe9336257940f3a00d64aedb8b8575a7c"
+            }
+        },
+        "gitlab.com/morimekta/providence-generator": {
+            "time": 1557580793209,
+            "version": 1557580793209,
+            "shasums": {
+                "p_model.providence": "45664ef60a1ef884e27cf603d24c1e4fd1c28368"
             }
         },
         "gitlab.com/morimekta/providence-reflect": {
