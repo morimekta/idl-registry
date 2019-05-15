@@ -15,13 +15,6 @@
             "shasums": {
                 "p_model.providence": "45664ef60a1ef884e27cf603d24c1e4fd1c28368"
             }
-        },
-        "gitlab.com/morimekta/providence-reflect": {
-            "time": 1549145688201,
-            "version": 1549145688201,
-            "shasums": {
-                "pmodel.providence": "468338d0fc74903718f515eeecaf3213dd4f1656"
-            }
         }
     }
 }
